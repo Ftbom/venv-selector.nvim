@@ -150,10 +150,18 @@ M.find_parent_venvs = function(parent_dir)
   local stdout = vim.loop.new_pipe(false)
   local stderr = vim.loop.new_pipe(false)
   local venv_names = utils.create_fd_venv_names_regexp(config.settings.name)
-  local fdconfig = {
-    args = { "--absolute-path", "--color", "never", "-HItd", venv_names, parent_dir },
-    stdio = { nil, stdout, stderr },
-  }
+  local fdconfig = {}
+  if config.settings.path == nil then
+    fdconfig = {
+      args = { "--absolute-path", "--color", "never", "-HItd", venv_names, parent_dir },
+      stdio = { nil, stdout, stderr },
+    }
+  else
+    fdconfig = {
+      args = { "--absolute-path", "--color", "never", "-HItd", venv_names, "--search-path", parent_dir, "--search-path", require("telescope.utils").buffer_dir()},
+      stdio = { nil, stdout, stderr },
+    }
+  end
 
   dbg("Looking for parent venvs in '" .. parent_dir .. "' using the following parameters:")
   dbg(fdconfig.args)
